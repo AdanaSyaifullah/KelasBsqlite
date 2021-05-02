@@ -4,10 +4,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.PopupMenu;
+import android.widget.Toast;
 
+import com.example.kelasbsqlite.adapter.TemanAdapter;
+import com.example.kelasbsqlite.database.DBController;
+import com.example.kelasbsqlite.database.Teman;
 import com.example.kelasbsqlite.adapter.TemanAdapter;
 import com.example.kelasbsqlite.database.DBController;
 import com.example.kelasbsqlite.database.Teman;
@@ -21,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private TemanAdapter adapter;
     private ArrayList<Teman> temanArrayList;
     DBController controller = new DBController(this);
-    String id,nama,telpon;
+    String id,nm,tlp;
     private FloatingActionButton fab;
 
     @Override
@@ -37,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
 
+
+
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,15 +62,17 @@ public class MainActivity extends AppCompatActivity {
     public void BacaData(){
         ArrayList<HashMap<String,String>> daftarTeman = controller.getAllTeman();
         temanArrayList = new ArrayList<>();
-        //memindah dari hasil query ke Teman
-        for (int  i=0;i<daftarTeman.size();i++){
+
+        //memindah dari hasil query kedalam Teman
+        for (int i=0;i<daftarTeman.size();i++){
             Teman teman = new Teman();
 
             teman.setId(daftarTeman.get(i).get("id").toString());
             teman.setNama(daftarTeman.get(i).get("nama").toString());
-            teman.setTelpon(daftarTeman.get(i).get("telpon").toString());
-            //pindahkan dari Teman kedalam ArrayList teman di adapter
+            teman.setTelpon(daftarTeman.get(i).get("telpon"));
+            //pindahkan dari Teman kedalma Arraylist teman di adapter
             temanArrayList.add(teman);
         }
     }
+
 }

@@ -14,8 +14,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.HashMap;
 
 public class TemanBaru extends AppCompatActivity {
-    private TextInputEditText tNama,tTelpon;
-    private Button simpanBtn;
+    private TextInputEditText tNama, tTelpon;
+    private Button savebtn;
     String nm,tlp;
     DBController controller = new DBController(this);
 
@@ -26,24 +26,24 @@ public class TemanBaru extends AppCompatActivity {
 
         tNama = (TextInputEditText)findViewById(R.id.tietNama);
         tTelpon = (TextInputEditText)findViewById(R.id.tietTelpon);
-        simpanBtn= (Button)findViewById(R.id.buttonSave);
+        savebtn = (Button)findViewById(R.id.buttonSave);
 
-        simpanBtn.setOnClickListener(new View.OnClickListener() {
+        savebtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               if (tNama.getText().toString().equals("")||tTelpon.getText().toString().equals("")) {
-                   Toast.makeText(getApplicationContext(), "Data belum Komplit!", Toast.LENGTH_SHORT).show();
-               }else{
-                   nm = tNama.getText().toString();
-                   tlp = tTelpon.getText().toString();
+                if (tNama.getText().toString().isEmpty() || tTelpon.getText().toString().isEmpty()){
+                    Toast.makeText(getApplicationContext(),"Data belum Komplit !", Toast.LENGTH_SHORT).show();
+                }else {
+                    nm = tNama.getText().toString();
+                    tlp = tTelpon.getText().toString();
 
-                   HashMap<String,String> qvalues = new HashMap<>();
-                   qvalues.put("nama",nm);
-                   qvalues.put("telpon",tlp);
+                    HashMap<String,String> qvalues = new HashMap<>();
+                    qvalues.put("nama",nm);
+                    qvalues.put("telpon",tlp);
 
-                   controller.insertData(qvalues);
-                   callHome();
-               }
+                    controller.insertData(qvalues);
+                    callHome();
+                }
             }
         });
     }
@@ -53,4 +53,5 @@ public class TemanBaru extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
 }
