@@ -4,75 +4,93 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Dialog;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.kelasbsqlite.adapter.TemanAdapter;
-import com.example.kelasbsqlite.database.DBController;
 import com.example.kelasbsqlite.database.Teman;
-import com.example.kelasbsqlite.adapter.TemanAdapter;
-import com.example.kelasbsqlite.database.DBController;
-import com.example.kelasbsqlite.database.Teman;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
-import java.util.HashMap;
+
+import static android.content.ContentValues.TAG;
 
 public class MainActivity extends AppCompatActivity {
-    private RecyclerView recyclerView;
+    private RecyclerView rv;
     private TemanAdapter adapter;
-    private ArrayList<Teman> temanArrayList;
-    DBController controller = new DBController(this);
-    String id,nm,tlp;
+    private ArrayList<Teman> temanArrayList = new ArrayList<>();
     private FloatingActionButton fab;
+    private static final String TAG  = MainActivity.class.getSimpleName();
+    private static String url_select = "http://10.0.2.2/umyTI/bacatm.php";
+    public static final String TAG_ID = "id";
+    public static final String TAG_NAMA = "nama";
+    public static final String TAG_TELP = "telpon";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        recyclerView = findViewById(R.id.recyclerview);
+        rv = findViewById(R.id.recyclerview);
         fab = findViewById(R.id.floatingActionBtn);
-        BacaData();
+        readData();
         adapter = new TemanAdapter(temanArrayList);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
-
-
-
+        RecyclerView.LayoutManager lm = new LinearLayoutManager(MainActivity.this);
+        rv.setLayoutManager(lm);
+        rv.setAdapter(adapter);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this,TemanBaru.class);
-                startActivity(intent);
+                Intent i = new Intent(MainActivity.this,TambahTeman.class);
+                startActivity(i);
             }
         });
     }
 
-    public void BacaData(){
-        ArrayList<HashMap<String,String>> daftarTeman = controller.getAllTeman();
-        temanArrayList = new ArrayList<>();
+    public void readData(){
+        RequestQueue rq = Volley.newRequestQueue(getApplicationContext());
+        JsonArrayRequest jArr = new JsonArrayRequest(url_select, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                Log.d(TAG,response.toString());
 
-        //memindah dari hasil query kedalam Teman
-        for (int i=0;i<daftarTeman.size();i++){
-            Teman teman = new Teman();
+                for (int i = 0; i < response.length(); i++){
+                    try {
+                        JSONObject obj = response.getJSONObject(i);
+                        Teman item = new Teman();
+                        item.setId(obj.getString(TAG_ID));
+                        item.setNama(obj.getString(TAG_NAMA));
+                        item.setTelpon(obj.getString(TAG_TELP));
 
-            teman.setId(daftarTeman.get(i).get("id").toString());
-            teman.setNama(daftarTeman.get(i).get("nama").toString());
-            teman.setTelpon(daftarTeman.get(i).get("telpon"));
-            //pindahkan dari Teman kedalma Arraylist teman di adapter
-            temanArrayList.add(teman);
-        }
+                        temanArrayList.add(item);
+                    }catch (JSONException e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }, new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError err){
+                VolleyLog.d(TAG,"Error: "+err.getMessage());
+                err.printStackTrace();
+                Toast.makeText(MainActivity.this,"gagal",Toast.LENGTH_SHORT).show();
+            }
+        });
+        rq.add(jArr);
     }
-
 }
