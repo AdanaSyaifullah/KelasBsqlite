@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void readData(){
+        temanArrayList.clear();
         RequestQueue rq = Volley.newRequestQueue(getApplicationContext());
         JsonArrayRequest jArr = new JsonArrayRequest(url_select, new Response.Listener<JSONArray>() {
             @Override
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
+                adapter.notifyDataSetChanged();
             }
         }, new Response.ErrorListener(){
             @Override
